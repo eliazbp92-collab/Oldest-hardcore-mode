@@ -25,7 +25,7 @@ local entity = Spawner:Create({
 	Entity = {
 		Name = "RipperNotMoving",
 		Asset = "rbxassetid://13197673405",
-		HeightOffset = 4
+		HeightOffset = 0
 	},
 	Lights = {
 		Flicker = {
