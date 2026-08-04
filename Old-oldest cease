@@ -1,0 +1,123 @@
+---====== Load spawner ======---
+local spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Entity%20Spawner/V2/Source.lua"))()
+local RunService = game:GetService("RunService")
+local Plr = game.Players.LocalPlayer
+ 
+---====== Create entity ======---
+ 
+game.Lighting.MainColorCorrection.TintColor = Color3.fromRGB(92, 103, 255)
+game.Lighting.MainColorCorrection.Contrast = 1
+local tween = game:GetService("TweenService")
+tween:Create(game.Lighting.MainColorCorrection, TweenInfo.new(2.5), {Contrast = 0}):Play()
+local TweenService = game:GetService("TweenService")
+local TW = TweenService:Create(game.Lighting.MainColorCorrection, TweenInfo.new(80),{TintColor = Color3.fromRGB(255, 255, 255)})
+TW:Play()
+ 
+local entity = spawner.Create({
+    Entity = {
+        Name = "Cease",
+        Asset = "rbxassetid://12262854624",
+        HeightOffset = 0
+    },
+    Lights = {
+        Flicker = {
+            Enabled = false,
+            Duration = 1
+        },
+        Shatter = false,
+        Repair = false
+    },
+    CameraShake = {
+        Enabled = false,
+        Range = 100,
+        Values = {1.5, 20, 0.1, 1} -- Magnitude, Roughness, FadeIn, FadeOut
+    },
+    Movement = {
+        Speed = 51.5,
+        Delay = 3.5,
+        Reversed = false
+    },
+    Rebounding = {
+        Enabled = false,
+        Type = "Ambush", 
+        Min = 1,
+        Max = 1,
+        Delay = 2
+    },
+    Damage = {
+        Enabled = false, -- Keep disabled if you want the "Movement" check to be the primary killer
+        Range = 40,
+        Amount = 125
+    },
+    Crucifixion = {
+        Enabled = false,
+        Range = 40,
+        Resist = true,
+        Break = true
+    },
+    Death = {
+        Type = "Guiding", 
+        Hints = {"You died to Cease..", "He appears when the room turns blue", "You just have to stand there and don't move until it disappears. ", "And if you move, he will kill you."},
+        Cause = "Cease"
+    }
+})
+ 
+---====== Custom Movement Kill Logic ======---
+ 
+local movementConnection
+ 
+entity:SetCallback("OnStartMoving", function()
+    print("Cease is moving - Stay still!")
+ 
+    movementConnection = RunService.Heartbeat:Connect(function()
+        local char = Plr.Character
+        local entModel = entity.Model
+ 
+        if char and char:FindFirstChild("Humanoid") and entModel and entModel.PrimaryPart then
+            local hud = char.Humanoid
+            local dist = (char.PrimaryPart.Position - entModel.PrimaryPart.Position).Magnitude
+ 
+            -- Check if in range AND moving
+            if dist <= 45 and hud.MoveDirection.Magnitude > 0 then
+                hud.Health = 0
+                -- Set death cause for UI
+                if game.ReplicatedStorage:FindFirstChild("GameStats") then
+                    game.ReplicatedStorage.GameStats["Player_".. Plr.Name].Total.DeathCause.Value = "Cease"
+                end
+            end
+        end
+    end)
+end)
+ 
+---====== Debug entity callbacks ======---
+ 
+entity:SetCallback("OnSpawned", function()
+    print("Entity has spawned")
+end)
+ 
+entity:SetCallback("OnReachNode", function(node)
+    -- print("Entity has reached node:", node)
+end)
+ 
+entity:SetCallback("OnLookAt", function(lineOfSight)
+    if lineOfSight == true then
+        print("Player is looking at entity")
+    else
+        print("Player view is obstructed")
+    end
+end)
+ 
+entity:SetCallback("OnDespawning", function()
+    -- Disconnect the movement check when the entity starts leaving
+    if movementConnection then
+        movementConnection:Disconnect()
+    end
+end)
+ 
+entity:SetCallback("OnDespawned", function()
+    print("Entity has despawned")
+end)
+ 
+---====== Run entity ======---
+ 
+entity:Run()
