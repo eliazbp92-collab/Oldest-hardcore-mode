@@ -300,16 +300,6 @@ entity:Run(true)
     end
 end)()
 
--- Shocker Entity
-coroutine.wrap(function()
-    while true do
-        wait(math.random(15,60))
-        pcall(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/vct0721/Doors-Stuff/refs/heads/main/Entities/Shocker"))()
-        end)
-    end
-end)()
-
 -- Frostbite Entity
 coroutine.wrap(function()
     while true do
