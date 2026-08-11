@@ -70,7 +70,6 @@ local Monster = workspace:FindFirstChild("A-60")
 			Part.Main.Face.Texture = random.Image
 			wait(Random.new():NextNumber(0,0.07))
 		end
-	end
 end)
  
 entity:SetCallback("OnStartMoving", function()
